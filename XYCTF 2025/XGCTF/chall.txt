@@ -1,0 +1,1 @@
+2024年CTFshow举办了一场名为“西瓜杯”的比赛（XGCTF）。其中LamentXU在出题的时候，从某场比赛拉了道原题下来改了改，结果传文件的时候传错了传成原题了。因为这件事LamentXU的损友dragonkeep在他之前的博客上的原题wp上加了一段flag来嘲笑LamentXU。请你找到XGCTF中唯一由LamentXU出的题，并找出这题对应的原题，接着找到dragonkeep师傅的博客，并从博客上讲解该题的博文中找到flag。（hint：dragonkeep师傅因为比较穷买不起域名，因此他博客的域名在dragonkeep的基础上多了个字母）难度：签到

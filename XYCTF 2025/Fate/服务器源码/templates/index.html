@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>SEARCH FOR PERSON'S FATE</title>
+    <script>
+
+     function setText(text) {
+       document.getElementById("result").innerText = `=> ${text}`;
+     }
+
+     function queryPerson() {
+       let name = document.getElementById("name").value;
+       fetch('/1337', {
+         method: 'GET',
+         headers: {'Content-Type': 'application/json'},
+         body: JSON.stringify({name})
+       }).then(response => {
+         if (response.status !== 200) {
+           setText("Error, Maybe the person name is too long or not valid, and this service is only accessiblke to local users");
+           throw new Error(response.statusText);
+         } else {
+           return response.json();
+         }
+       }).then(data => {
+         setText(data.Fate);
+       }).catch(err => {})
+     }
+    </script>
+  </head>
+  <body>
+    <h1>SEARCH FOR PERSON'S FATE</h1>
+    <label for="name">Person's name: </label>
+    <input id="name" type="text" maxlength="6" style="width: 2em;" required>
+    <button onclick="queryPerson()">Search</button>
+    <p id="result"></p>
+  </body>
+</html>
