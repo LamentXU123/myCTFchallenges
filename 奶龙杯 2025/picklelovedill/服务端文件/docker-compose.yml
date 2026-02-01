@@ -1,0 +1,10 @@
+version: '3'
+services:
+  ezupload:
+    build: .
+    ports:
+      - "8020:5000"
+    environment:
+      - UWSGI_INI=/app/uwsgi.ini
+      - LISTEN_PORT=5000
+    restart: unless-stopped

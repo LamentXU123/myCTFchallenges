@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Python 代码执行台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-1: #0a1330;
+            --bg-2: #0f2147;
+            --accent: #3b86ff;
+            --accent-2: #0bd3ff;
+            --text-main: #f5f7ff;
+            --text-soft: rgba(226, 235, 255, 0.7);
+            --panel: rgba(10, 18, 40, 0.72);
+            --border: rgba(88, 177, 255, 0.4);
+            --shadow: 0 24px 60px rgba(2, 8, 26, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at 20% 20%, rgba(59, 134, 255, 0.35), transparent 55%),
+                        radial-gradient(circle at 80% 10%, rgba(11, 211, 255, 0.25), transparent 45%),
+                        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 18px 70px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 140px 140px;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(6px);
+            opacity: 0.6;
+            animation: float 14s ease-in-out infinite;
+        }
+
+        .orb.one {
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(59, 134, 255, 0.85), rgba(59, 134, 255, 0) 70%);
+            top: 10%;
+            left: 8%;
+        }
+
+        .orb.two {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(11, 211, 255, 0.7), rgba(11, 211, 255, 0) 70%);
+            bottom: 8%;
+            right: 6%;
+            animation-delay: 2.5s;
+        }
+
+        .shell {
+            width: min(880px, 100%);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+            animation: fadeUp 0.7s ease both;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(59, 134, 255, 0.2);
+            border: 1px solid rgba(59, 134, 255, 0.55);
+            color: var(--text-main);
+            font-size: 0.78rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .pill::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--accent-2);
+            box-shadow: 0 0 10px rgba(11, 211, 255, 0.9);
+        }
+
+        h1 {
+            margin: 14px 0 8px;
+            font-size: clamp(2rem, 3.2vw, 3.2rem);
+            font-weight: 600;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--text-soft);
+            font-size: 1rem;
+            max-width: 640px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: clamp(20px, 3vw, 32px);
+            backdrop-filter: blur(14px);
+            animation: fadeUp 0.7s ease both;
+            animation-delay: 0.06s;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .code-area {
+            min-height: 260px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 14px 16px;
+            border: 1px solid rgba(59, 134, 255, 0.4);
+            background: rgba(6, 16, 34, 0.75);
+            color: #d9e8ff;
+            font-family: "IBM Plex Mono", "Courier New", monospace;
+            font-size: 0.95rem;
+            box-shadow: inset 0 0 0 1px rgba(11, 211, 255, 0.1);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .code-area:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 3px rgba(11, 211, 255, 0.2);
+            outline: none;
+        }
+
+        .editor {
+            position: relative;
+        }
+
+        .code-highlight {
+            position: absolute;
+            inset: 0;
+            margin: 0;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            pointer-events: none;
+        }
+
+        .code-highlight code.hljs {
+            background: transparent;
+            padding: 0;
+        }
+
+        .code-input {
+            position: relative;
+            background: transparent;
+            color: transparent;
+            caret-color: #d9e8ff;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-run {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 999px;
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            color: #04142c;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            box-shadow: 0 12px 24px rgba(25, 130, 255, 0.35);
+            cursor: pointer;
+        }
+
+        .hint {
+            color: var(--text-soft);
+            font-size: 0.9rem;
+        }
+
+        .output-wrap {
+            margin-top: 26px;
+        }
+
+        .output-title {
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .output-area {
+            min-height: 180px;
+            border-radius: 16px;
+            padding: 14px 16px;
+            border: 1px solid rgba(59, 134, 255, 0.4);
+            background: rgba(4, 12, 26, 0.82);
+            color: #d4e3ff;
+            white-space: pre-wrap;
+            box-shadow: inset 0 0 0 1px rgba(11, 211, 255, 0.1);
+        }
+
+        .footer {
+            margin-top: 18px;
+            color: rgba(245, 247, 255, 0.55);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 32px 16px 60px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg">
+        <span class="orb one"></span>
+        <span class="orb two"></span>
+    </div>
+
+    <main class="shell">
+        <header class="hero">
+            <h1>Python 代码执行台</h1>
+        </header>
+
+        <section class="panel">
+            <form method="POST">
+                <div class="field">
+                    <label for="code" class="form-label">输入 Python 代码</label>
+                    <div class="editor">
+                        <textarea class="code-area" id="code" name="code" rows="10" spellcheck="false">{{ code }}</textarea>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="submit" class="btn-run">执行代码</button>
+                </div>
+            </form>
+
+            {% if output %}
+            <div class="output-wrap">
+                <div class="output-title">执行结果</div>
+                <div class="output-area">{{ output }}</div>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+
+</body>
+</html>

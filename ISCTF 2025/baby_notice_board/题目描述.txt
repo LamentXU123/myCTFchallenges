@@ -1,0 +1,8 @@
+在你以后的 CTF 历程中，你会遇到不少的大型 php 项目审计。
+
+然而，大多数情况下，你不一定需要完全自己审计出一个原创的漏洞（0day），而是可以利用已有的漏洞进行攻击（nday）。
+
+CVE 是这个世界上最大的漏洞数据库。接下来，尝试用好你的 google 搜索和学习能力，去复现一个已经发布但不广为人知的 php 项目漏洞。
+
+项目源码：https://code-projects.org/online-notice-board-using-php-source-code/
+CVE 编号：CVE-2024-12233
