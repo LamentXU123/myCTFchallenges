@@ -1,6 +1,4 @@
-### I really really really
-
-codex resume 019c1259-8700-78c0-b93e-d5f695601403
+### I really really really first-blood write-up by huaji
 
 题目对 `__、数字、引号、[]{};` 等做了拦截，print/open/len这些函数也被移除了
 
